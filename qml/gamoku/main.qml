@@ -10,6 +10,7 @@ Rectangle {
     width: 600
     height: 600
     color: "lightblue"
+    focus: true
 
     Rectangle {
         id: fieldCanvas
@@ -43,7 +44,7 @@ Rectangle {
             columns: cellDimension
 
             Repeater {
-                model: cellDimension * cellDimension
+                model: listModel
                 delegate: cellFake
             }
         }
@@ -74,17 +75,48 @@ Rectangle {
 
                 width: parent.width * 3/4
                 anchors.centerIn: parent
-                visible: false
+                visible: lM_visible
             }
 
             MouseArea {
                 anchors.fill: parent
 
                 onClicked: {
-                    gameStone.whichIs = 1
+                    gameStone.whichIs = lM_whichIs
                     gameStone.visible = true
                 }
             }
         }
+    }
+
+    Keys.onPressed: {
+        var newGameKeys = event.key === Qt.Key_N
+
+        if (newGameKeys)
+            initNewGame()
+    }
+
+    ListModel { id: listModel }
+
+    Component.onCompleted: {
+        fill_lM()
+    }
+
+    function fill_lM()
+    {
+        listModel.clear()
+        for (var i = 0; i < cellDimension * cellDimension; ++i)
+            listModel.append( { lM_visible: false, lM_whichIs: 0 } )
+    }
+
+    function fieldIndex(rowI, colI)
+    {
+        return rowI * cellDimension + colI
+    }
+
+    function initNewGame()
+    {
+        listModel.clear()
+        fill_lM()
     }
 }
